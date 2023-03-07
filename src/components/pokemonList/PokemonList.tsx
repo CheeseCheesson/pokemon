@@ -1,46 +1,68 @@
-/* eslint-disable */
+import { useState, useEffect } from "react"
 import { useRequestPokemonsQuery } from "../../serveces/PokenonAPI"
 import { IPokemon } from "../../types/pokemonTypes"
-import { useState } from "react"
 import Pagination from "../pagination/Pagination"
 import PokemonDetailsModal from "../pokemonDetailsModal/PokemonDetailsModal"
 import { useAppSelector } from "../../hooks/hooks"
-import { useEffect } from "react"
-import { IType } from "./../../types/ITypeResponse"
-interface IPokemonItem {
-  slot: number
-  pokemon: {
-    name: string
-    url: string
-  }
-}
-type PokemonList = IPokemonItem[]
+import PokemonCard from "../pokemonCard/PokemonCard"
+import { IPokemonItem } from "./../../types/IPokemon"
+import Loader from "../loader/Loader"
 
 const PokemonList = () => {
   const [limit, setLimit] = useState(20)
   const [offset, setOffset] = useState(0)
   const [pokemonListByTag, setPokemonListByTag] = useState<IPokemonItem[]>([])
+  const [filteredByTagsPokemons, setFilteredByTagsPokemons] = useState<
+    IPokemonItem[]
+  >([])
   const [selectedPokemon, setSelectedPokemon] = useState<string>("")
   const [pocemonId, setpocemonId] = useState<string>("")
+  const [allPokemons, setAllPokemons] = useState<IPokemon[]>([])
+  const [filteredPokemons, setFilteredPokemons] = useState<IPokemon[]>([])
+  const [searchQuery, setSearchQuery] = useState<string>("")
+
   const pokemonByTag = useAppSelector(
     (state) => state.filtredSlice.filtredArray
   )
   useEffect(() => {
     if (Array.isArray(pokemonByTag) && pokemonByTag.length > 0) {
-      const { pokemon } = pokemonByTag[0]
-      setPokemonListByTag(pokemon)
+      if (Array.isArray(pokemonByTag) && pokemonByTag.length > 0) {
+        const { pokemon } = pokemonByTag[0]
+        setPokemonListByTag(pokemon)
+      }
     }
   }, [pokemonByTag])
-  console.log(pokemonListByTag)
+
   const {
     data: pokemonList,
     isLoading,
     isError
   } = useRequestPokemonsQuery({ limit, offset })
 
+  useEffect(() => {
+    if (pokemonList) {
+      setAllPokemons(pokemonList.results)
+    }
+  }, [pokemonList])
+
+  useEffect(() => {
+    if (pokemonListByTag.length > 0) {
+      const filtered = pokemonListByTag.filter((pokemon) =>
+        pokemon?.pokemon?.name
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase())
+      )
+      setFilteredByTagsPokemons(filtered)
+    }
+    const filtered = allPokemons.filter((pokemon) =>
+      pokemon?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    setFilteredPokemons(filtered)
+  }, [allPokemons, pokemonListByTag, searchQuery])
+
   const handlePokemonClick = (pokemon: IPokemon) => {
-    setSelectedPokemon(pokemon.name)
-    setpocemonId(pokemon.url.split("/")[6])
+    setSelectedPokemon(pokemon?.name)
+    setpocemonId(pokemon?.url?.split("/")[6])
   }
 
   const handlePrevClick = () => {
@@ -56,68 +78,96 @@ const PokemonList = () => {
   }
 
   if (isLoading) {
-    return <div>Loading...</div>
-  }
-
-  if (isError) {
-    return <div>Error occurred while fetching data.</div>
-  }
-  const handleClose = () => {
-    setSelectedPokemon("")
-  }
-
-  if (pokemonListByTag.length > 0) {
     return (
-      <div>
-        <div className="flex flex-wrap gap-6 px-2 justify-center">
-          {pokemonListByTag?.map((pokemon: IPokemonItem) => (
-            <div
-              key={pokemon.pokemon.name}
-              className="w-1/4 sm:w-1/2 md:w-1/3 "
-            >
-              <div className="bg-white border rounded-lg overflow-hidden">
-                <img
-                  src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${
-                    pokemon.pokemon.url.split("/")[6]
-                  }.png`}
-                  alt={pokemon.pokemon.name}
-                  className="w-full"
-                />
-                <div className="p-2">
-                  <div className="font-bold text-lg">
-                    {pokemon.pokemon.name}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+      <div className="flex h-28 items-center justify-center">
+        <Loader />
       </div>
     )
   }
 
+  if (isError) {
+    return (
+      <div className="text-fighting">Error occurred while fetching data.</div>
+    )
+  }
+  const handleClose = () => {
+    setSelectedPokemon("")
+  }
+  const handleSearchInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setSearchQuery(event.target.value)
+  }
+
+  const renderPokemonList = () => {
+    if (filteredByTagsPokemons.length > 0) {
+      return (
+        <>
+          {filteredByTagsPokemons.map((pokemon) => (
+            <PokemonCard
+              pokemon={pokemon.pokemon}
+              onClick={() => handlePokemonClick(pokemon.pokemon)}
+            />
+          ))}
+        </>
+      )
+    }
+    if (pokemonListByTag.length > 0) {
+      return (
+        <>
+          {pokemonListByTag.map((pokemon) => (
+            <PokemonCard
+              pokemon={pokemon.pokemon}
+              onClick={() => handlePokemonClick(pokemon.pokemon)}
+            />
+          ))}
+        </>
+      )
+    }
+
+    if (filteredPokemons.length > 0) {
+      return (
+        <>
+          {filteredPokemons.map((pokemon) => (
+            <PokemonCard
+              pokemon={pokemon}
+              onClick={() => handlePokemonClick(pokemon)}
+            />
+          ))}
+        </>
+      )
+    }
+    if (allPokemons.length > 0) {
+      return (
+        <>
+          {allPokemons.map((pokemon) => (
+            <PokemonCard
+              pokemon={pokemon}
+              onClick={() => handlePokemonClick(pokemon)}
+            />
+          ))}
+        </>
+      )
+    }
+    return <div className="text-fighting">No Pokemons found</div>
+  }
+
   return (
     <div>
+      <h1 className="text-5xl text-center mb-4 pt-4 text-ice font-bold">
+        Pokedex
+      </h1>
+      <div className="flex-grow md:mr-4 mb-4 md:mb-0 pt-4">
+        <input
+          type="text"
+          placeholder="Search by name"
+          value={searchQuery}
+          onChange={handleSearchInputChange}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+        />
+      </div>
       <div className="flex flex-wrap gap-6 px-2 justify-center">
-        {pokemonList?.results.map((pokemon: IPokemon) => (
-          <div key={pokemon.name} className="w-1/4 sm:w-1/2 md:w-1/3 ">
-            <div
-              className="bg-white border rounded-lg overflow-hidden"
-              onClick={() => handlePokemonClick(pokemon)}
-            >
-              <img
-                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${
-                  pokemon.url.split("/")[6]
-                }.png` || "https://via.placeholder.com/150"}
-                alt={pokemon.name}
-                className="w-full"
-              />
-              <div className="p-2">
-                <div className="font-bold text-lg">{pokemon.name}</div>
-              </div>
-            </div>
-          </div>
-        ))}
+        {renderPokemonList()}
       </div>
       {selectedPokemon && (
         <PokemonDetailsModal

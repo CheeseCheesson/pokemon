@@ -1,3 +1,4 @@
+/* eslint-disable */
 interface IPastDamageRelations {
   generation: {
     name: string

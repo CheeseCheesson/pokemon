@@ -1,12 +1,4 @@
-/* eslint-disable */
-type PaginationProps = {
-  previous?: string | null
-  next?: string | null
-  onPrevClick: () => void
-  onNextClick: () => void
-  onLimitChange: (event: React.ChangeEvent<HTMLSelectElement>) => void
-  limit: number
-}
+import { PaginationProps } from "../../types/PaginationProps"
 
 const Pagination = ({
   previous,
@@ -34,6 +26,7 @@ const Pagination = ({
         </select>
       </div>
       <button
+        type="button"
         className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded-l ${
           previous ? "" : "opacity-50 cursor-not-allowed"
         }`}
@@ -43,6 +36,7 @@ const Pagination = ({
         Prev
       </button>
       <button
+        type="button"
         className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded-r ${
           next ? "" : "opacity-50 cursor-not-allowed"
         }`}

@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { combineReducers, configureStore } from "@reduxjs/toolkit"
 import filtredSlice from "../features/filtredSlice"
 import { pokemonAPI } from "../serveces/PokenonAPI"

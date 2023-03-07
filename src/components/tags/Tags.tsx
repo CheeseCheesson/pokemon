@@ -3,13 +3,12 @@ import { setFiltredArray } from "../../features/filtredSlice"
 import { useGetByTagQuery } from "../../serveces/PokenonAPI"
 import { setBgcolorToPokemonTag } from "../../Utils/utils"
 
-/* eslint-disable */
 type TypesProps = {
   type: string
 }
 
 const Tags = ({ type }: TypesProps) => {
-  const { data: pokemonsByTags, isLoading, isError } = useGetByTagQuery(type)
+  const { data: pokemonsByTags } = useGetByTagQuery(type)
 
   const dispatch = useDispatch()
 

@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { useRequestPokemonQuery } from "../../serveces/PokenonAPI"
 import Tags from "./../tags/Tags"
 

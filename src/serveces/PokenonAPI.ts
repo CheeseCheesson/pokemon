@@ -1,9 +1,8 @@
-/* eslint-disable */
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
-import { IPokemon } from "../types/IPokemon";
+import { IPokemon } from "../types/IPokemon"
 import { IPokemonListResponse } from "../types/pokemonTypes"
-import { IPokedexDetails } from './../types/IPokedexDetails';
-import { IType } from './../types/ITypeResponse';
+import { IPokedexDetails } from "./../types/IPokedexDetails"
+import { IType } from "./../types/ITypeResponse"
 
 export const pokemonAPI = createApi({
   reducerPath: "pokemonAPI",
@@ -24,20 +23,25 @@ export const pokemonAPI = createApi({
     }),
     requestPokedex: build.query<IPokedexDetails, string>({
       query: (id) => ({
-        url: `/pokedex/${id}`,
-      }),
+        url: `/pokedex/${id}`
+      })
     }),
     requestPokemon: build.query<IPokemon, string>({
       query: (id) => ({
-        url: `/pokemon/${id}`,
-      }),
+        url: `/pokemon/${id}`
+      })
     }),
     getByTag: build.query<IType, string>({
       query: (id) => ({
-        url: `/type/${id}`,
-      }),
-    }),
+        url: `/type/${id}`
+      })
+    })
   })
 })
 
-export const { useRequestPokemonsQuery, useRequestPokedexQuery, useRequestPokemonQuery, useGetByTagQuery } = pokemonAPI
+export const {
+  useRequestPokemonsQuery,
+  useRequestPokedexQuery,
+  useRequestPokemonQuery,
+  useGetByTagQuery
+} = pokemonAPI
