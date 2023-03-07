@@ -3,7 +3,7 @@ import PokemonList from "../pokemonList/PokemonList"
 
 const App = () => {
   return (
-    <div className="max-w-xl mx-auto">
+    <div className="w-[800px] mx-auto">
       <PokemonList />
     </div>
   )

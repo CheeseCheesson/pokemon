@@ -4,12 +4,34 @@ import { IPokemon } from "../../types/pokemonTypes"
 import { useState } from "react"
 import Pagination from "../pagination/Pagination"
 import PokemonDetailsModal from "../pokemonDetailsModal/PokemonDetailsModal"
+import { useAppSelector } from "../../hooks/hooks"
+import { useEffect } from "react"
+import { IType } from "./../../types/ITypeResponse"
+interface IPokemonItem {
+  slot: number
+  pokemon: {
+    name: string
+    url: string
+  }
+}
+type PokemonList = IPokemonItem[]
 
 const PokemonList = () => {
   const [limit, setLimit] = useState(20)
   const [offset, setOffset] = useState(0)
+  const [pokemonListByTag, setPokemonListByTag] = useState<IPokemonItem[]>([])
   const [selectedPokemon, setSelectedPokemon] = useState<string>("")
   const [pocemonId, setpocemonId] = useState<string>("")
+  const pokemonByTag = useAppSelector(
+    (state) => state.filtredSlice.filtredArray
+  )
+  useEffect(() => {
+    if (Array.isArray(pokemonByTag) && pokemonByTag.length > 0) {
+      const { pokemon } = pokemonByTag[0]
+      setPokemonListByTag(pokemon)
+    }
+  }, [pokemonByTag])
+  console.log(pokemonListByTag)
   const {
     data: pokemonList,
     isLoading,
@@ -44,14 +66,41 @@ const PokemonList = () => {
     setSelectedPokemon("")
   }
 
+  if (pokemonListByTag.length > 0) {
+    return (
+      <div>
+        <div className="flex flex-wrap gap-6 px-2 justify-center">
+          {pokemonListByTag?.map((pokemon: IPokemonItem) => (
+            <div
+              key={pokemon.pokemon.name}
+              className="w-1/4 sm:w-1/2 md:w-1/3 "
+            >
+              <div className="bg-white border rounded-lg overflow-hidden">
+                <img
+                  src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${
+                    pokemon.pokemon.url.split("/")[6]
+                  }.png`}
+                  alt={pokemon.pokemon.name}
+                  className="w-full"
+                />
+                <div className="p-2">
+                  <div className="font-bold text-lg">
+                    {pokemon.pokemon.name}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div>
-      <div className="flex flex-wrap">
+      <div className="flex flex-wrap gap-6 px-2 justify-center">
         {pokemonList?.results.map((pokemon: IPokemon) => (
-          <div
-            key={pokemon.name}
-            className="w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/5 xl:w-1/6 p-2"
-          >
+          <div key={pokemon.name} className="w-1/4 sm:w-1/2 md:w-1/3 ">
             <div
               className="bg-white border rounded-lg overflow-hidden"
               onClick={() => handlePokemonClick(pokemon)}
@@ -59,7 +108,7 @@ const PokemonList = () => {
               <img
                 src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${
                   pokemon.url.split("/")[6]
-                }.png`}
+                }.png` || "https://via.placeholder.com/150"}
                 alt={pokemon.name}
                 className="w-full"
               />

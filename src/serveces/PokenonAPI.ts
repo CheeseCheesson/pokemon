@@ -1,8 +1,9 @@
 /* eslint-disable */
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
-import { IAbility } from "../types/IAbility";
+import { IPokemon } from "../types/IPokemon";
 import { IPokemonListResponse } from "../types/pokemonTypes"
 import { IPokedexDetails } from './../types/IPokedexDetails';
+import { IType } from './../types/ITypeResponse';
 
 export const pokemonAPI = createApi({
   reducerPath: "pokemonAPI",
@@ -26,12 +27,17 @@ export const pokemonAPI = createApi({
         url: `/pokedex/${id}`,
       }),
     }),
-    requestAbility: build.query<IAbility, string>({
+    requestPokemon: build.query<IPokemon, string>({
       query: (id) => ({
-        url: `ability/${id}`,
+        url: `/pokemon/${id}`,
+      }),
+    }),
+    getByTag: build.query<IType, string>({
+      query: (id) => ({
+        url: `/type/${id}`,
       }),
     }),
   })
 })
 
-export const { useRequestPokemonsQuery, useRequestPokedexQuery, useRequestAbilityQuery } = pokemonAPI
+export const { useRequestPokemonsQuery, useRequestPokedexQuery, useRequestPokemonQuery, useGetByTagQuery } = pokemonAPI
